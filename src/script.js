@@ -417,4 +417,5 @@ document.getElementById("add-student-form").addEventListener("submit", (e) => {
   e.target.reset();
 });
 
+
 document.getElementById("get-students-btn").addEventListener("click", getStudents);
