@@ -92,7 +92,7 @@ form {
   display: grid;
 }
 
-input[type="text"], input[type="number"], input[type="email"] {
+input[type="number"], input[type="email"] {
   color: #e6e6e6;
   background: #1f1f1f;
   border: 1px solid #555;
@@ -100,6 +100,10 @@ input[type="text"], input[type="number"], input[type="email"] {
   padding: 12px;
   font-size: 14px;
   transition: all .2s;
+}
+
+input[type="text"] {
+  background-color: red;
 }
 
 input:focus {
