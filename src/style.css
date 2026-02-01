@@ -92,7 +92,7 @@ form {
   margin-top: 25px;
 }
 
-input[type="text"],
+/* input[type="text"],
 input[type="number"],
 input[type="email"] {
   padding: 12px;
@@ -102,7 +102,18 @@ input[type="email"] {
   background: #1f1f1f;
   color: #e6e6e6;
   transition: 0.2s;
+} */
+
+input:not([type="checkbox"]):not([type="radio"]) {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  font-size: 14px;
+  background: #1f1f1f;
+  color: #e6e6e6;
+  transition: 0.2s;
 }
+
 
 /* #upd-name{
   padding: 12px;
