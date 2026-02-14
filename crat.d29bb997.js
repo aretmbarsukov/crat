@@ -714,37 +714,59 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 }
 
 },{}],"kyksZ":[function(require,module,exports,__globalThis) {
-// const API_URL = "https://697f29d2d1548030ab654d3a.mockapi.io/students";
 const API_URL = "http://localhost:3000/students";
 let currentEditId = null;
-function getStudents() {
-    fetch(API_URL).then((res)=>res.json()).then((students)=>{
+async function getStudents() {
+    try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430 \u043E\u0442\u0440\u0438\u043C\u0430\u043D\u043D\u044F \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0456\u0432");
+        const students = await res.json();
         students.sort((a, b)=>a.id - b.id);
         renderStudents(students);
-    });
+    } catch (error) {
+        console.error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430:", error);
+    }
 }
-function addStudent(student) {
-    fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(student)
-    }).then(getStudents);
+async function addStudent(student) {
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(student)
+        });
+        if (!res.ok) throw new Error("\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u0434\u043E\u0434\u0430\u0442\u0438 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430");
+        await getStudents();
+    } catch (error) {
+        console.error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430:", error);
+    }
 }
-function updateStudent(id, updatedData) {
-    fetch(`${API_URL}/${id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(updatedData)
-    }).then(getStudents);
+async function updateStudent(id, updatedData) {
+    try {
+        const res = await fetch(`${API_URL}/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updatedData)
+        });
+        if (!res.ok) throw new Error("\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u043E\u043D\u043E\u0432\u0438\u0442\u0438 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430");
+        await getStudents();
+    } catch (error) {
+        console.error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430:", error);
+    }
 }
-function deleteStudent(id) {
-    fetch(`${API_URL}/${id}`, {
-        method: "DELETE"
-    }).then(getStudents);
+async function deleteStudent(id) {
+    try {
+        const res = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+        if (!res.ok) throw new Error("\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u0432\u0438\u0434\u0430\u043B\u0438\u0442\u0438 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430");
+        await getStudents();
+    } catch (error) {
+        console.error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430:", error);
+    }
 }
 function renderStudents(students) {
     const tbody = document.querySelector("#students-table tbody");
@@ -775,9 +797,12 @@ function renderStudents(students) {
 }
 const modal = document.getElementById("modal");
 const closeModalBtn = document.getElementById("close-modal");
-function openModal(id) {
-    currentEditId = id;
-    fetch(`${API_URL}/${id}`).then((res)=>res.json()).then((student)=>{
+async function openModal(id) {
+    try {
+        currentEditId = id;
+        const res = await fetch(`${API_URL}/${id}`);
+        if (!res.ok) throw new Error("\u041D\u0435 \u0432\u0434\u0430\u043B\u043E\u0441\u044F \u043E\u0442\u0440\u0438\u043C\u0430\u0442\u0438 \u0434\u0430\u043D\u0456 \u0441\u0442\u0443\u0434\u0435\u043D\u0442\u0430");
+        const student = await res.json();
         document.getElementById("upd-name").value = student.name;
         document.getElementById("upd-age").value = student.age;
         document.getElementById("upd-course").value = student.course;
@@ -785,13 +810,15 @@ function openModal(id) {
         document.getElementById("upd-email").value = student.email;
         document.getElementById("upd-isEnrolled").checked = student.isEnrolled;
         modal.style.display = "block";
-    });
+    } catch (error) {
+        console.error("\u041F\u043E\u043C\u0438\u043B\u043A\u0430:", error);
+    }
 }
 closeModalBtn.onclick = ()=>modal.style.display = "none";
 window.onclick = (e)=>{
     if (e.target === modal) modal.style.display = "none";
 };
-document.getElementById("update-student-form").addEventListener("submit", (e)=>{
+document.getElementById("update-student-form").addEventListener("submit", async (e)=>{
     e.preventDefault();
     const updatedStudent = {
         name: document.getElementById("upd-name").value,
@@ -801,10 +828,10 @@ document.getElementById("update-student-form").addEventListener("submit", (e)=>{
         email: document.getElementById("upd-email").value,
         isEnrolled: document.getElementById("upd-isEnrolled").checked
     };
-    updateStudent(currentEditId, updatedStudent);
+    await updateStudent(currentEditId, updatedStudent);
     modal.style.display = "none";
 });
-document.getElementById("add-student-form").addEventListener("submit", (e)=>{
+document.getElementById("add-student-form").addEventListener("submit", async (e)=>{
     e.preventDefault();
     const student = {
         name: document.getElementById("name").value,
@@ -814,116 +841,10 @@ document.getElementById("add-student-form").addEventListener("submit", (e)=>{
         email: document.getElementById("email").value,
         isEnrolled: document.getElementById("isEnrolled").checked
     };
-    addStudent(student);
+    await addStudent(student);
     e.target.reset();
 });
-document.getElementById("get-students-btn").addEventListener("click", getStudents); // const API_URL = "https://697f29d2d1548030ab654d3a.mockapi.io/students";
- // let currentEditId = null;
- // async function getStudents() {
- //   let students = await fetch(API_URL).then(r => r.json());
- //   students = students.map(s => ({
- //     ...s,
- //     isEnrolled: s.isEnrolled === true || s.isEnrolled === "true"
- //   }));
- //   renderStudents(students);
- // }
- // async function addStudent(student) {
- //   await fetch(API_URL, {
- //     method: "POST",
- //     headers: { "Content-Type": "application/json" },
- //     body: JSON.stringify(student),
- //   });
- //   getStudents();
- // }
- // async function updateStudent(id, updatedData) {
- //   await fetch(`${API_URL}/${id}`, {
- //     method: "PUT",
- //     headers: { "Content-Type": "application/json" },
- //     body: JSON.stringify(updatedData),
- //   });
- //   getStudents();
- // }
- // async function deleteStudent(id) {
- //   await fetch(`${API_URL}/${id}`, {
- //     method: "DELETE",
- //   });
- //   getStudents();
- // }
- // function renderStudents(students) {
- //   const tbody = document.querySelector("#students-table tbody");
- //   tbody.innerHTML = "";
- //   students.forEach((student) => {
- //     const tr = document.createElement("tr");
- //     tr.innerHTML = `
- //       <td>${student.id}</td>
- //       <td>${student.name}</td>
- //       <td>${student.age}</td>
- //       <td>${student.course}</td>
- //       <td>${student.skills.join(", ")}</td>
- //       <td>${student.email}</td>
- //       <td>${student.isEnrolled ? "Так" : "Ні"}</td>
- //       <td>
- //         <button class="update-btn" data-id="${student.id}">Оновити</button>
- //         <button class="delete-btn" data-id="${student.id}">Видалити</button>
- //       </td>
- //     `;
- //     tbody.appendChild(tr);
- //   });
- //   document.querySelectorAll(".delete-btn").forEach((btn) => {
- //     btn.addEventListener("click", () => deleteStudent(btn.dataset.id));
- //   });
- //   document.querySelectorAll(".update-btn").forEach((btn) => {
- //     btn.addEventListener("click", () => openModal(btn.dataset.id));
- //   });
- // }
- // const modal = document.getElementById("modal");
- // const closeModalBtn = document.getElementById("close-modal");
- // function openModal(id) {
- //   currentEditId = id;
- //   fetch(`${API_URL}/${id}`)
- //     .then(res => res.json())
- //     .then(student => {
- //       document.getElementById("upd-name").value = student.name;
- //       document.getElementById("upd-age").value = student.age;
- //       document.getElementById("upd-course").value = student.course;
- //       document.getElementById("upd-skills").value = student.skills.join(", ");
- //       document.getElementById("upd-email").value = student.email;
- //       document.getElementById("upd-isEnrolled").checked =
- //         student.isEnrolled === true || student.isEnrolled === "true";
- //       modal.style.display = "block";
- //     });
- // }
- // closeModalBtn.onclick = () => modal.style.display = "none";
- // window.onclick = (e) => {
- //   if (e.target === modal) modal.style.display = "none";
- // };
- // document.getElementById("update-student-form").addEventListener("submit", (e) => {
- //   e.preventDefault();
- //   const updatedStudent = {
- //     name: document.getElementById("upd-name").value,
- //     age: Number(document.getElementById("upd-age").value),
- //     course: document.getElementById("upd-course").value,
- //     skills: document.getElementById("upd-skills").value.split(",").map(s => s.trim()),
- //     email: document.getElementById("upd-email").value,
- //     isEnrolled: document.getElementById("upd-isEnrolled").checked,
- //   };
- //   updateStudent(currentEditId, updatedStudent);
- //   modal.style.display = "none";
- // });
- // document.getElementById("add-student-form").addEventListener("submit", (e) => {
- //   e.preventDefault();
- //   const student = {
- //     name: document.getElementById("name").value,
- //     age: Number(document.getElementById("age").value),
- //     course: document.getElementById("course").value,
- //     skills: document.getElementById("skills").value.split(",").map(s => s.trim()),
- //     email: document.getElementById("email").value,
- //     isEnrolled: document.getElementById("isEnrolled").checked,
- //   };
- //   addStudent(student);
- //   e.target.reset();
- // });
- // document.getElementById("get-students-btn").addEventListener("click", getStudents);
+document.getElementById("get-students-btn").addEventListener("click", getStudents);
 
 },{}]},["7SvX3","kyksZ"], "kyksZ", "parcelRequire3059", {})
 
